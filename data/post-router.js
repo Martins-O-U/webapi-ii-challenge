@@ -3,6 +3,7 @@ const db = require('./db')
 
 const router = express.Router();
 
+
 router.post('/posts', (req, res) => {
     const post = req.body
     if (!post.title || !post.contents) {
@@ -18,6 +19,7 @@ router.post('/posts', (req, res) => {
     }
 })
 
+
 router.get('/posts', (req, res) => {
     db.find()
         .then(posts => {
@@ -28,38 +30,51 @@ router.get('/posts', (req, res) => {
         })
 })
 
+
 router.get('/posts/:id', (req, res) => {
-    const id = req.params.id
-    db.findById(id)
-        .then(user => {
-            if (user) {
-                res.json(user)
+    db.findById(req.params.id)
+        .then(post => {
+            if (post.length > 0) {
+                res.status(200).json(post)
             } else {
-                res.status(404).json({ message: "The post with the specified ID does not exist." })
+                res.status(404).json({
+                    success: false,
+                    message: "The post with the specified ID does not exist."
+                })
             }
         })
-        .catch(() => {
-            res.status(500).json({ error: "The post information could not be retrieved." })
+        .catch(error => {
+            res.status(500).json({
+                success: false,
+                message: "The post information could not be retrieved.",
+                error
+            })
         })
 })
+
 
 router.get('/posts/:id/comments', (req, res) => {
-    const id = req.params.id
-    db.findPostComments(id)
-        .then(user => {
-            if (user) {
-                res.json(user)
-            } else {
-                res.status(404).json({ message: "The post with the specified ID does not exist." })
+    const { id } = req.params
+    db.findCommentById(id)
+        .then(data => {
+            if (data.length > 0) {
+                res.status(200).json(data)              
+            }
+            else {
+                res.status(404).json({
+                    success: false,
+                    message: `The post with the specific does not exist.`
+                })
             }
         })
-        .catch(() => {
-            res.status(500).json({ error: "The comments information could not be retrieved." })
+        .catch(error => {
+            res.status(500).json({
+                success: false,
+                message: "The comments information could not be retrieved",
+                error
+            })
         })
 })
-
-
-
 
 
 module.exports = router; 
