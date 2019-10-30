@@ -19,35 +19,35 @@ router.post('/posts', (req, res) => {
     }
 })
 
-// router.post('/posts/:id/comments', (req, res) => {
-//     const { id } = req.params;
-//     const post = req.body;
-
-//     db.findById(id)
-//         .then(data =>{
-//             if (!data.length > 0){
-//                 res.status(404).json({
-//                     success: false,
-//                     message: "The post with the specified ID does not exist."
-//                 })
-//             } else if (!post.text) {
-//                 res.status(400).json({ errorMessage: "Please provide text for the comment." })
-//             } else {
-//                 return db.insertComment(post)
-//                     .then(posts => {
-//                         res.status(201).json(posts)
-//                     })
-//             }
-//         })
-//         .catch(error => {
-//             res.status(500).json({
-//                 success: false,
-//                 message: "The comments information could not be retrieved",
-//                 error
-//             })
-//         })
-
-// })
+router.post('/posts/:id/comments', (req, res) => {
+    const { id } = req.params;
+  
+    const newComment = {
+      text: req.body.text.trim(),
+      post_id: id
+    };
+  
+    if (!newComment.text) {
+      return res.status(400).json({
+        error: 'Please provide text for the comment.'
+      });
+    }
+  
+    db.insertComment(newComment)
+      .then(data => {
+        return data
+          ? res.status(200).json(data)
+          : res.status(404).json({
+              message: 'The post with the specified ID does not exist.'
+            });
+      })
+      .catch(() => {
+        return res.status(500).json({
+          error: 'There was an error while saving the comment to the database'
+        });
+      });
+  });
+  
 
 
 router.delete('/posts/:id', (req, res) => {
