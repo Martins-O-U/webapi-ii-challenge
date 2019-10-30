@@ -1,19 +1,15 @@
-
 const express = require('express')
-const cors = require ('cors')
-const db = require('./data/db')
+const postRouter = require('./data/post-router')
 
-const server = express()
+const server = express();
 
-server.use(cors())
-server.use(express.json())
+server.use(express.json());
+server.use('/api', postRouter)
 
-server.get('/api/users', handleDefault)
+server.get('/', (req, res) => {
+    res.status(200).json({ message: "hello"})
+})
 
-function handleDefault (req, res){
-    res.json('Test passed!')
-}
-
-server.listen(process.env.port || 4000, ()=>{
-    console.log('Listening on ' + (process.env.port || 4000))
+server.listen(process.env.port || 4000, () => {
+    console.log('Listening on '+ (process.env.port || 4000))
 })
