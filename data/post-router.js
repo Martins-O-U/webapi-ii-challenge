@@ -19,6 +19,53 @@ router.post('/posts', (req, res) => {
     }
 })
 
+// router.post('/posts/:id/comments', (req, res) => {
+//     const { id } = req.params;
+//     const post = req.body;
+
+//     db.findById(id)
+//         .then(data =>{
+//             if (!data.length > 0){
+//                 res.status(404).json({
+//                     success: false,
+//                     message: "The post with the specified ID does not exist."
+//                 })
+//             } else if (!post.text) {
+//                 res.status(400).json({ errorMessage: "Please provide text for the comment." })
+//             } else {
+//                 return db.insertComment(post)
+//                     .then(posts => {
+//                         res.status(201).json(posts)
+//                     })
+//             }
+//         })
+//         .catch(error => {
+//             res.status(500).json({
+//                 success: false,
+//                 message: "The comments information could not be retrieved",
+//                 error
+//             })
+//         })
+
+// })
+
+
+router.delete('/posts/:id', (req, res) => {
+    const id = req.params.id
+    
+    db.remove(id)
+    .then(post => {
+        if (post) {
+            res.json(post)
+        } else {
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+        }
+    })
+    .catch(() => {
+        res.status(500).json({ error: "The post could not be removed" })
+    })
+})
+
 
 router.get('/posts', (req, res) => {
     db.find()
@@ -52,13 +99,34 @@ router.get('/posts/:id', (req, res) => {
         })
 })
 
+router.put('/posts/:id', (req, res) => {
+    const id = req.params.id;
+    const edited = req.body;
+
+    if (!edited.title || !edited.contents) {
+        res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
+    } 
+    else {
+        db.update(id, edited)
+            .then(newData => {
+                if (newData) {
+                    res.status(200).json(newData)
+                } else {
+                    res.status(404).json({ message: "The post with the specified ID does not exist." })
+                }
+            })
+            .catch(() => {
+                res.status(500).json({ error: "The post information could not be modified." })
+            })
+    }
+})
 
 router.get('/posts/:id/comments', (req, res) => {
     const { id } = req.params
     db.findCommentById(id)
         .then(data => {
             if (data.length > 0) {
-                res.status(200).json(data)              
+                res.status(200).json(data)                           
             }
             else {
                 res.status(404).json({
